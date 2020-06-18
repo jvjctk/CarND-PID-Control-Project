@@ -153,13 +153,12 @@ I started with initial value obtained from manuel trials which is (0.15, 0.01, 3
 After applying twiddle for 2 successful laps, best results found as Kp = 0.226823,Ki = 0.0151215,Kd = 4.53646.
 
 Here is short video of simulator with pid controller.
+[output video](../master/video.mp4)
 
 <!-- blank line -->
 <figure class="video_container">
   <video controls="true" allowfullscreen="true" poster="../master/poster.PNG">
     <source src="../master/video.mp4" type="video/mp4">
-    <source src="../master/video.ogg" type="video/ogg">
-    <source src="../master/video.webm" type="video/webm">
   </video>
 </figure>
 <!-- blank line -->
