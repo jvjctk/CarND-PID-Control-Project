@@ -156,8 +156,10 @@ Here is short video of simulator with pid controller.
 
 <!-- blank line -->
 <figure class="video_container">
-  <video controls="true" allowfullscreen="true" > <!-- poster="path/to/poster_image.png" -->
-    <source src="/output.mp4" type="video/mp4">
+  <video controls="true" allowfullscreen="true" poster="../master/poster.PNG">
+    <source src="../master/video.mp4" type="video/mp4">
+    <source src="../master/video.ogg" type="video/ogg">
+    <source src="../master/video.webm" type="video/webm">
   </video>
 </figure>
 <!-- blank line -->
