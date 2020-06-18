@@ -30,6 +30,12 @@ class PID {
    * @output The total PID error
    */
   double TotalError();
+  
+  void twiddle(double cte);
+  /**
+   * find best controller parameters for given cross track error.
+   * @param cte The current cross track error
+   */
 
  private:
   /**
@@ -45,6 +51,20 @@ class PID {
   double Kp;
   double Ki;
   double Kd;
+  
+  
+  /**
+  * twiddle variables
+  */
+  
+  bool start_;
+  double bestErr;  
+  double p [3] = {0,0,0};
+  double dp [3] = {0,0,0};
+  double sum_dp;
+  bool firstCheckIncrement;
+  bool firstCheckDecrement;
+  
 };
 
 #endif  // PID_H
