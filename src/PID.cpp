@@ -19,14 +19,17 @@ void PID::Init(double Kp_, double Ki_, double Kd_) {
   p[0] = Kp_;
   p[1] = Ki_;  
   p[2] = Kd_;
-  dp[0] = Kp_*.1;
-  dp[1] = Ki_*.1;  
-  dp[2] = Kd_*.1;
+  dp[0] = Kp_*.05;
+  dp[1] = Ki_*.05;  
+  dp[2] = Kd_*.05;
   
   bestErr = std::numeric_limits<double>::max();
+  bestErrEver = std::numeric_limits<double>::max();
   
   firstCheckIncrement = true;
   firstCheckDecrement = true;
+  firstCheck = true;
+  Counter = 0;
   
 
 }
@@ -61,44 +64,75 @@ void PID::twiddle(double cte)
 {
 sum_dp = 0;
 sum_dp = dp[0] + dp[1] + dp[2];
+if(!firstCheck)
+ {
+  if(Counter>500)
+  { 
+    firstCheck = false;
+   	firstCheckIncrement = true;
+  	firstCheckDecrement = true;
+    Counter = 0;
+  }
+  Counter++;
+ }
+
+  
 for( int i=0; i<3; i++)
   {
-
-    if (firstCheckIncrement)
-    {
-        p[i] += dp[i];        
-
-        bestErr = cte;
-        firstCheckIncrement = false;
-    }
+	
+  	std::cout<<"values p ["<<i<<"]"<<p[i]<<","<< "   ";
 
     if (cte < bestErr)
-    {
-      if (!firstCheckIncrement && firstCheckDecrement)
+    { 
+      firstCheck = false;   
+      if (firstCheckIncrement)
       {
-        bestErr = cte;
         dp[i] *= 1.1;
+        p[i] += dp[i];
+        if(i==2)
+        {
+          firstCheckIncrement = false;
+          bestErr = cte;
+        } 
       } 
 
-      if (!firstCheckIncrement && !firstCheckDecrement)
-      {
-        bestErr = cte;
-        dp[0] *=  0.9;
-      } 
-
-        p[0] += dp[0];
-
-    }
-    else
-    {
-      if ( !firstCheckIncrement && firstCheckDecrement)
-      {
-        p[0] -=2 * dp[0];
-        bestErr = cte;
-        firstCheckDecrement = false;
+      else if (firstCheckDecrement)
+      {    
+        dp[i] *= 0.9;
+      	p[i] += dp[i];
+        if(i==2)
+        {
+          firstCheckDecrement = false;
+          bestErr = cte;
+        }  
       }
+      
     }
-
+	else if (bestErrEver < bestErr)
+    {      
+        if(!firstCheckIncrement && firstCheckDecrement)
+        {
+          dp[i] *= 0.9;
+          p[i] += dp[i];
+          if(i==2)
+          {
+            firstCheck = true;
+            bestErrEver = bestErr;
+          }
+          
+        }
+        if(!firstCheckIncrement && !firstCheckDecrement)
+        {
+          dp[i] *= 1.1;
+          p[i] += dp[i];
+          if(i==2)
+          {
+            firstCheck = true;
+            bestErrEver = bestErr;
+          }
+        }        
+      
+    }
   }
   
 }

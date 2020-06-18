@@ -3,6 +3,165 @@ Self-Driving Car Engineer Nanodegree Program
 
 ---
 
+## PID controller
+
+It is a well known control algorithm which is widely used in automation industries where it is generally accepted and widely used.
+
+### P Proportional controller
+
+It is used to get a proportional output using ratio of result and set value. It increases controller speed. When proportional control coefficient becomes large, system oscillates which does not fit to the solution.
+
+### I integral Controller
+
+Integral controller controls integral error that produces by the system over time. Controller tries to overcome this integral error by integrating over time.
+
+### D Defferential Controller
+
+Deferential controller is used to control the output from short time incremental variation. It gives further stebility to the system. 
+
+## implementation
+
+### function: init
+
+initializing all variable at the beginning is done by this function. 
+
+		p[0] = Kp_;
+        p[1] = Ki_;  
+        p[2] = Kd_;
+        dp[0] = Kp_*.05;
+        dp[1] = Ki_*.05;  
+        dp[2] = Kd_*.05;
+
+        bestErr = std::numeric_limits<double>::max();
+        bestErrEver = std::numeric_limits<double>::max();
+
+        firstCheckIncrement = true;
+        firstCheckDecrement = true;
+        firstCheck = true;
+        Counter = 0;
+
+### function: UpdateError
+
+Error is constantly updates this function. At the end, twiddle function is called for tuning parameters.
+
+      if (start_)
+      {
+        p_error = cte;
+        start_ = false;
+      }
+
+      d_error=cte-p_error;
+      p_error=cte;
+      i_error+=cte;
+
+
+      twiddle(cte);
+
+### function: TotalError
+
+		return -p[0]*p_error-p[1]*i_error-p[2]*d_error;
+
+### function: twiddle
+
+This function tunes PID constants. First trying coefficients by adding a small value. If it favours, adds again. It it fails to reduce cross track error, reduces coefficients values by small amounts. This step is continued till it finds the best value. Now it is implemented as a combination of all three coefficients. For better results, every single coefficient could be tuned separately to find the optimum value.
+
+      void PID::twiddle(double cte)
+        {
+        sum_dp = 0;
+        sum_dp = dp[0] + dp[1] + dp[2];
+        if(!firstCheck)
+         {
+          if(Counter>500)
+          { 
+            firstCheck = false;
+            firstCheckIncrement = true;
+            firstCheckDecrement = true;
+            Counter = 0;
+          }
+          Counter++;
+         }
+
+
+        for( int i=0; i<3; i++)
+          {
+
+            std::cout<<"values p ["<<i<<"]"<<p[i]<<",";
+
+            if (cte < bestErr)
+            { 
+              firstCheck = false;   
+              if (firstCheckIncrement)
+              {
+                dp[i] *= 1.1;
+                p[i] += dp[i];
+                if(i==2)
+                {
+                  firstCheckIncrement = false;
+                  bestErr = cte;
+                }  	
+                std::cout<<"test11";
+              } 
+
+              else if (firstCheckDecrement)
+              {    
+                dp[i] *= 0.9;
+                p[i] += dp[i];
+                if(i==2)
+                {
+                  firstCheckDecrement = false;
+                  bestErr = cte;
+                }  
+              }
+
+            }
+            else if (bestErrEver < bestErr)
+            {      
+                if(!firstCheckIncrement && firstCheckDecrement)
+                {
+                  dp[i] *= 0.9;
+                  p[i] += dp[i];
+                  if(i==2)
+                  {
+                    firstCheck = true;
+                    bestErrEver = bestErr;
+                  }
+
+                }
+                if(!firstCheckIncrement && !firstCheckDecrement)
+                {
+                  dp[i] *= 1.1;
+                  p[i] += dp[i];
+                  if(i==2)
+                  {
+                    firstCheck = true;
+                    bestErrEver = bestErr;
+                  }
+                  std::cout<<"test";
+                }        
+
+            }
+          }
+
+        }
+
+## Result
+
+I started with initial value obtained from manuel trials which is (0.15, 0.01, 3.0)
+
+		pid.Init(0.15, 0.01, 3.0);
+
+After applying twiddle for 2 successful laps, best results found as Kp = 0.226823,Ki = 0.0151215,Kd = 4.53646.
+
+Here is short video of simulator with pid controller.
+
+<!-- blank line -->
+<figure class="video_container">
+  <video controls="true" allowfullscreen="true" > <!-- poster="path/to/poster_image.png" -->
+    <source src="/output.mp4" type="video/mp4">
+  </video>
+</figure>
+<!-- blank line -->
+
 ## Dependencies
 
 * cmake >= 3.5

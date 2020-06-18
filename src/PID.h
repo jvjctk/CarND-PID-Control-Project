@@ -59,11 +59,14 @@ class PID {
   
   bool start_;
   double bestErr;  
+  double bestErrEver;
   double p [3] = {0,0,0};
   double dp [3] = {0,0,0};
   double sum_dp;
   bool firstCheckIncrement;
   bool firstCheckDecrement;
+  int Counter;
+  bool firstCheck;
   
 };
 
